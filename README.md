@@ -100,20 +100,26 @@ The processed files in the directory outdata have the following schema:
 - Field Descriptions:
     - This is the header of the pipe separated file that will be generated.
     - The fields are:
-    - YEAR          -- The **year** of the record. **NOTE:** This field is passed in from the above shell scripts.
-    - SWIS          -- The **SWIS** number for town of the parcel.
-    - TOWN          -- The **town** name for the parcel.
-    - ADDR          -- The **address** within the town.
-    - ACCT          -- The **account number** for this parcel.
-    - PARCEL_ID     -- The **parcel ID**. It is believed the first part of this string (or all of it) can be 
-                       matched with the following regular expression pattern: '^[0-9]\.[0-9]+-[0-9]+0[0-9]+'
-                       However, there is no dependence on this assumption in the code used to process the data.
-    - PARCEL_TYPE   -- The **parcel type**; e.g., Single family residence, etc.
-    - LUC           -- (L)and (U)se (C)ode for this parcel.
-    - OWN1          -- The **first owner** (Or name of business)
-    - OWN2          -- The **second owner** or address of property.
-    - ACCR          -- The **acreage** of the property.
-    - FULL_MKT_VAL  -- The **full market value** of the parcel -- land value + building value.
+        - YEAR          -- The **year** of the record. **NOTE:** This field is passed in from the above shell scripts.
+        - SWIS          -- The **SWIS** number for town of the parcel.
+        - TOWN          -- The **town** name for the parcel.
+        - ADDR          -- The **address** within the town.
+        - ACCT          -- The **account number** for this parcel.
+        - PARCEL_ID     -- The **parcel ID**. It is believed the first part of this string (or all of it) can be 
+                           matched with the following regular expression pattern: '^[0-9]\.[0-9]+-[0-9]+0[0-9]+'
+                           However, there is no dependence on this assumption in the code used to process the data.
+        - PARCEL_TYPE   -- The **parcel type**; e.g., Single family residence, etc.
+        - LUC           -- (L)and (U)se (C)ode for this parcel.
+        - OWN1          -- The **first owner** (Or name of business)
+        - OWN2          -- The **second owner** or address of property.
+        - ACCR          -- The **acreage** of the property.
+        - FULL_MKT_VAL  -- The **full market value** of the parcel -- land value + building value.
+
+
+## SQL Lite Database
+The script, *create_taxrec*, is a SQL Lite script that creates the taxrec.db database located in the *taxdb* directory.
+It uses the data in the *outdata* directory to do so.
+The databases's only table is *taxrec*.
 
 ## Tax assessment analysis
 The Jupyter notebook src/Tax_Assessment.ipynb analyzes the SQL-lite database and compares
