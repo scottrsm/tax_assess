@@ -1,56 +1,5 @@
 import numpy as np
-
-
-class WeightArrayMisMatch(Exception):
-  '''
-    Array and associated weight array do not have the same length.
-  '''
-  def __init__(self, message="Weight array and associated values array are not the same length."):
-    self.message = message
-    super().__init__(self.message) 
-    
-class NegativeWeightArrayValue(Exception):
-  '''
-    Weight array has at least one negative value..
-  '''
-  def __init__(self, message="Weight array has at least one negative value."):
-    self.message = message
-    super().__init__(self.message) 
-    
-class WeightSumNotPositive(Exception):
-  '''
-    Weight array sum is not positive.
-  '''
-  def __init__(self, message="Sum of weight array values is not positive."):
-    self.message = message
-    super().__init__(self.message) 
-    
-class NotNumpyArray(Exception):
-  '''
-    Array is not a numpy array.
-  '''
-  def __init__(self, message="Array is not a numpy array."):
-    self.message = message
-    super().__init__(self.message) 
-
-class NotAMatrix(Exception):
-  '''
-    Array is not a matrix.
-  '''
-  def __init__(self, message="Array is not a matrix."):
-    self.message = message
-    super().__init__(self.message) 
-    
-class NotProperQuantile(Exception):
-  '''
-    Array is not a numpy array.
-  '''
-  def __init__(self, message="Array as at least one value not in [0, 1]."):
-    self.message = message
-    super().__init__(self.message) 
-
-
-
+import array_except as ne
 
 
 def wgt_quantiles(vs, wts, qs):
@@ -90,27 +39,27 @@ Parameter Contract
   
   ## 1. Are vs, wts, and qs are numpy arrays?
   if type(vs)  != np.ndarray:
-    raise(NotNumpyArray('wgt_quantiles: <vs>: Not an numpy array.' ))
+    raise(ne.NotNumpyArray('wgt_quantiles: <vs>: Not an numpy array.' ))
   if type(wts) != np.ndarray:
-    raise(NotNumpyArray('wgt_quantiles: <wts>: Not an numpy array.'))
+    raise(ne.NotNumpyArray('wgt_quantiles: <wts>: Not an numpy array.'))
   if type(qs)  != np.ndarray:
-    raise(NotNumpyArray('wgt_quantiles: <qs>: Not an numpy array.'))
+    raise(ne.NotNumpyArray('wgt_quantiles: <qs>: Not an numpy array.'))
     
   ## 2. All qs values in [0.0, 1.0]?
   if any((qs < 0.0) | (qs > 1.0)):
-    raise(NotProperQuantile('wgt_quantiles: <qs>: Not a proper quantiles array.'))
+    raise(ne.NotProperQuantile('wgt_quantiles: <qs>: Not a proper quantiles array.'))
   
   ## 3. The length of vs and wts is the same?
   if np.size(vs) != np.size(wts):
-    raise(WeightArrayMisMatch('wgt_quantiles: <vs> and <wts> do not have the same length.'))
+    raise(ne.WeightArrayMisMatch('wgt_quantiles: <vs> and <wts> do not have the same length.'))
 
   ## 4. all wts >= 0?
   if any(wts < 0.0):
-    raise(NegativeWeightArrayValue('wgt_quantiles: <wts> has one or more negative elements.'))
+    raise(ne.NegativeWeightArrayValue('wgt_quantiles: <wts> has one or more negative elements.'))
 
   ## 5. sum(wts) > 0?
   if sum(wts) <= 0:
-    raise(WeightSumNotPositive('wgt_quantiles: Sum of <wts> is not positive.'))
+    raise(ne.WeightSumNotPositive('wgt_quantiles: Sum of <wts> is not positive.'))
       
   ## Sort the vs array and the associated weights.
   ## Turn the weights into proper weights and create a cumulative weight array.
@@ -299,6 +248,11 @@ def assessment_wgt_quant_rets(df, ret_field, wgt_field, quants, filt=True):
   -----------
   A (D, M) numpy array.
   
+  Packages
+  --------
+  numpy(np)
+  pandas
+
   Assumptions
   -----------
     1. The fields, <ret_field> and <wgt_field> hold numeric values in <df>.
@@ -340,6 +294,11 @@ def assessment_wgt_median_rets(df, ret_field, wgt_field, filt=True):
   Return-Type
   -----------
   A (D) numpy array.
+
+  Packages
+  --------
+  numpy(np)
+  pandas
 
   Assumptions
   -----------
