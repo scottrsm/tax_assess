@@ -285,7 +285,7 @@ def assessment_wgt_median_rets(df, ret_field, wgt_field, filt=True):
   ----------
   df        : Pandas dataframe of length N and contains the field names of the returns and the weights from the variables: ret_field and wgt_field.
   ret_field : Field of <df> that contains D returns for each row.
-  wgt_field : Field of <df> containing the weights. (Weights must be non-negative, but do not need to sum to 1.
+  wgt_field : Field of <df> containing the weights. (Weights must be non-negative, but do not need to sum to 1.)
 
   Returns
   -------
