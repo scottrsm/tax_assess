@@ -9,16 +9,19 @@ The incorporated villages of Greenburgh are:
 - Tarrytown
 
 ## Project Structure
-- pdfdata -- Raw PDF data from Assessor's web site. File extension: *.pdf*.
+- pdfdata -- Raw PDF data from Greenburgh Assessor's web site. File extension: *.pdf*.
 - indata  -- Contains raw text data scraped from pdf files in directory *pdfdata*. File extension: *.txt*.
-- outdata -- Processed *indata* files. File extension: *.psv*. 
-- src     -- Contains shell and awk scripts to process raw TXT data files in directory *indata*
-             and place processed PSV files to *outdata*.
+- outdata -- Processed raw TXT files from *indata*. File extension: *.psv*. 
+- src     -- Contains shell and awk scripts to process raw PDF 
+             data files in directory *pdfdata* into raw TXT 
+             in *indata*; which, in turn, are transformed into
+             PSV files and placed into *outdata*. 
+- taxdb   -- SQL Lite script, create_taxrec; which when run, produces the taxrec.db database in this directory.
 
 
 
 ## Data Source
-The data source is the Assessment records from the Hartsdale, NY town web site:
+The data source is the Assessment records from the Hartsdale, NY town web site.
 The data is currently stored as PDFs of reports on a yearly basis. The two most recent 
 are stored at: [Current Assessments](https://www.greenburghny.com/169/Assessment-Rolls).
 
@@ -121,9 +124,9 @@ The script, *create_taxrec*, is a SQL Lite script that creates the taxrec.db dat
 It uses the data in the *outdata* directory to do so.
 The databases's only table is *taxrec*.
 
-## Tax assessment analysis
-The Jupyter notebook src/Tax_Assessment.ipynb analyzes the SQL-lite database and compares
-the aggregated returns based on different aggregation and filtering methods.
+## Tax Assessment Analysis
+The Jupyter notebook src/Tax_Assessment.ipynb analyzes the SQL-lite database and compares, after filtering/cleaning the data,
+the aggregated returns based on different aggregation methods.
 
 
 
