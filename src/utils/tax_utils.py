@@ -61,7 +61,7 @@ def wgt_quantiles(vs, wts, qs):
   ----------
   vs    A numpy(np) (N) array of numeric values. 
   wts   A numpy(np) (N) array of numeric weights. (Weights need only be non-negative, they need not sum to 1.)
-  qs    A numpy(np) (D) array of numeric values.  (Meant to be quantiles -- numbers in the range [0, 1]); OR, a scalar value.
+  qs    A numpy(np) (D) array of numeric values.  (Meant to be quantiles -- numbers in the range [0, 1]).
 
   Returns
   -------
@@ -113,7 +113,7 @@ Parameter Contract
     raise(WeightSumNotPositive('wgt_quantiles: Sum of <wts> is not positive.'))
       
   ## Sort the vs array and the associated weights.
-  ## Turn the weights into proper weights and create a cummulative weight array.
+  ## Turn the weights into proper weights and create a cumulative weight array.
   idx  = np.argsort(vs)
   ovs  = vs[idx]
   ows  = wts[idx]
@@ -288,7 +288,7 @@ def assessment_wgt_quant_rets(df, ret_field, wgt_field, quants, filt=True):
   ----------
   df        : Pandas dataframe of length N and contains the field names of the returns and the weights from the variables: ret_field and wgt_field.
   ret_field : Field of <df> that contains D returns for each row.
-  wgt_field : Field of <df> containint the weights. (Weights must be non-negative, but do not need to sum to 1.
+  wgt_field : Field of <df> containing the weights. (Weights must be non-negative, but do not need to sum to 1.
   quants    : A numpy (M) array of quantiles (in the range [0, 1]).
 
   Returns
@@ -331,7 +331,7 @@ def assessment_wgt_median_rets(df, ret_field, wgt_field, filt=True):
   ----------
   df        : Pandas dataframe of length N and contains the field names of the returns and the weights from the variables: ret_field and wgt_field.
   ret_field : Field of <df> that contains D returns for each row.
-  wgt_field : Field of <df> containint the weights. (Weights must be non-negative, but do not need to sum to 1.
+  wgt_field : Field of <df> containing the weights. (Weights must be non-negative, but do not need to sum to 1.
 
   Returns
   -------
