@@ -1,4 +1,7 @@
+
 import numpy as np
+import jax
+import jax.numpy as jnp
 import array_except as ne
 
 
@@ -8,9 +11,9 @@ def wgt_quantiles(vs, wts, qs):
     
   Parameters
   ----------
-  vs    A numpy(np) (N) array of numeric values. 
-  wts   A numpy(np) (N) array of numeric weights. (Weights need only be non-negative, they need not sum to 1.)
-  qs    A numpy(np) (D) array of numeric values.  (Meant to be quantiles -- numbers in the range [0, 1]).
+  vs    A numpy(jax.numpy) (N) array of numeric values. 
+  wts   A numpy(jax.numpy) (N) array of numeric weights. (Weights need only be non-negative, they need not sum to 1.)
+  qs    A numpy(jax.numpy) (D) array of numeric values.  (Meant to be quantiles -- numbers in the range [0, 1]).
 
   Returns
   -------
@@ -18,11 +21,12 @@ def wgt_quantiles(vs, wts, qs):
   
   Return-Type
   -----------
-  A numpy(np) (D) array of weighted quantile <vs> values with the same length as <qs>.
+  A jax.numpy(jnp) (D) array of weighted quantile <vs> values with the same length as <qs>.
   
   Packages
   --------
   numpy(np)
+  jax.numpy(jnp)
 
 Parameter Contract
   -----------------
@@ -38,19 +42,19 @@ Parameter Contract
   '''
   
   ## 1. Are vs, wts, and qs are numpy arrays?
-  if type(vs)  != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles: <vs>: Not an numpy array.' ))
-  if type(wts) != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles: <wts>: Not an numpy array.'))
-  if type(qs)  != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles: <qs>: Not an numpy array.'))
+  if type(vs)  != jnp.ndarray:
+    raise(ne.NotNumpyArray('wgt_quantiles: <vs> : Not a numpy array.' ))
+  if type(wts) != jnp.ndarray:
+    raise(ne.NotNumpyArray('wgt_quantiles: <wts>: Not a numpy array.' ))
+  if type(qs)  != jnp.ndarray:
+    raise(ne.NotNumpyArray('wgt_quantiles: <qs> : Not a numpy array.' ))
     
   ## 2. All qs values in [0.0, 1.0]?
   if any((qs < 0.0) | (qs > 1.0)):
     raise(ne.NotProperQuantile('wgt_quantiles: <qs>: Not a proper quantiles array.'))
   
   ## 3. The length of vs and wts is the same?
-  if np.size(vs) != np.size(wts):
+  if np.size(vs) != jnp.size(wts):
     raise(ne.WeightArrayMisMatch('wgt_quantiles: <vs> and <wts> do not have the same length.'))
 
   ## 4. all wts >= 0?
@@ -61,30 +65,35 @@ Parameter Contract
   if sum(wts) <= 0:
     raise(ne.WeightSumNotPositive('wgt_quantiles: Sum of <wts> is not positive.'))
       
+  ## Convert data to jax numpys.
+  vs   = jnp.asarray(vs)
+  qs   = jnp.asarray(qs)
+  wts  = jnp.asarray(wts)
+
   ## Sort the vs array and the associated weights.
   ## Turn the weights into proper weights and create a cumulative weight array.
-  idx  = np.argsort(vs)
+  idx  = jnp.argsort(vs)
   ovs  = vs[idx]
   ows  = wts[idx]
-  ows  = ows / np.sum(ows) # Normalize the weights.
-  cws  = np.cumsum(ows)
+  ows  = ows / jnp.sum(ows) # Normalize the weights.
+  cws  = jnp.cumsum(ows)
   
-  N    = np.size(cws)
-  M    = np.size(qs)
+  N    = jnp.size(cws)
+  M    = jnp.size(qs)
   
   ## Reshape to broadcast.
-  cws.shape = (N, 1)
-  qs.shape  = (1, M)
+  cws = jnp.reshape(cws, (N, 1))
+  qs = jnp.reshape(qs, (1, M))
   
   ## Use broadcasting to get all comparisons of <cws> with each entry from <qs>.  
   ## Form tensor (cws <= qs) * 1 and sandwich index of the value vectors with 0 and 1.
-  A   = np.concatenate([np.ones(M).reshape(1,M), (cws <= qs) * 1, np.zeros(M).reshape(1,M)], axis=0)
+  A   = jnp.concatenate([jnp.reshape(jnp.ones(M), (1,M)), (cws <= qs) * 1, jnp.reshape(jnp.zeros(M), (1,M))], axis=0)
   
   ## Get the diff -- -1 will indicate where the boundary is where cws > qs.
-  X   = np.diff(A, axis=0).astype(int)
+  X   = jnp.diff(A, axis=0).astype(int)
   
-  ## Get the indices of the boundary.
-  idx = np.maximum(0, np.where(X == -1)[0] - 1)
+  ## Get the indices of the boundary and convert back to numpy array.
+  idx = np.array(jnp.maximum(0, jnp.where(X == -1)[0] - 1))
   
   ## Return the weighted quantile value of <vs> against each <qs>.
   return(ovs[idx])
@@ -97,9 +106,9 @@ def wgt_quantiles_tensor(vs, wts, qs):
     
   Parameters
   ----------
-  vs    A numpy(np) (D, N) matrix of numeric values. 
-  wgts  A numpy(np) (N) array of numeric weights. (Weights need only be non-negative, they need not sum to 1.)
-  qs    A numpy(np) (M) array of numeric values.  (Meant to be quantiles -- numbers in the range [0, 1]).
+  vs    A numpy(jax.numpy) (D, N) matrix of numeric values. 
+  wgts  A numpy(jax.numpy) (N) array of numeric weights. (Weights need only be non-negative, they need not sum to 1.)
+  qs    A numpy(jax.numpy) (M) array of numeric values.  (Meant to be quantiles -- numbers in the range [0, 1]).
   
   Returns
   -------
@@ -111,7 +120,7 @@ def wgt_quantiles_tensor(vs, wts, qs):
   
   Packages
   --------
-  numpy(np)
+  jax.numpy(jnp)
   
   Parameter Contract
   -----------------
@@ -130,19 +139,19 @@ def wgt_quantiles_tensor(vs, wts, qs):
   
   ## 1. Are vs and wts are numpy arrays?
   if type(wts) != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles_tensor: <wts>: Not an numpy array.'))
+    raise(ne.NotNumpyArray('wgt_quantiles_tensor: <wts>: Not a numpy array.' ))
   if len(wts.shape) != 1:
-    raise(ne.NotAMatrix('wgt_quantiles_tensor: <wts>: Not a 1-D array.'))
+    raise(ne.NotAMatrix(   'wgt_quantiles_tensor: <wts>: Not a 1-D array.'   ))
   if type(qs) != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles_tensor: <qs>: Not an numpy array.')) 
+    raise(ne.NotNumpyArray('wgt_quantiles_tensor: <qs>: Not a numpy array.'  )) 
   if len(qs.shape) != 1:
-    raise(ne.NotAMatrix('wgt_quantiles_tensor: <qs>: Not a 1-D array.'))
+    raise(ne.NotAMatrix(   'wgt_quantiles_tensor: <qs>: Not a 1-D array.'    ))
 
   ## 2. Is vs is a numpy matrix?
   if type(vs)  != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles_tensor: <vs>: Not an numpy array.' ))
+    raise(ne.NotNumpyArray('wgt_quantiles_tensor: <vs>: Not a numpy array.'  ))
   if len(vs.shape) != 2:
-    raise(ne.NotAMatrix('wgt_quantiles_tensor: <vs>: Not a matrix.'))
+    raise(ne.NotAMatrix(   'wgt_quantiles_tensor: <vs>: Not a matrix.'       ))
     
   ## 3. All qs values in [0.0, 1.0]?
   if any((qs < 0.0) | (qs > 1.0)):
@@ -160,40 +169,45 @@ def wgt_quantiles_tensor(vs, wts, qs):
   if sum(wts) <= 0:
     raise(ne.WeightSumNotPositive('wgt_quantiles_tensor: Sum of <wts> is not positive.'))
   
+  ## Convert data to jax numpys.
+  vs  = jnp.asarray(vs)
+  qs  = jnp.asarray(qs)
+  wts = jnp.asarray(wts)
+
   ## Normalize the weights.
-  ws  = wts / np.sum(wts)
+  ws  = wts / jnp.sum(wts)
   
   D, N  = vs.shape
   M     = qs.size
 
   ## Get the sorted index array for each of the value vectors in vs.
-  idx = np.argsort(vs, axis=1)
+  idx = jnp.argsort(vs, axis=1)
   
   ## Apply this index back to vs to get sorted values.
-  ovs = np.take_along_axis(vs, idx, axis=1)
+  ovs = jnp.take_along_axis(vs, idx, axis=1)
   
   ## Apply the index to the weights, where, the dimension of ws (and cws) expands to: (D, N).
   ows = ws[idx]
-  cws = np.cumsum(ows, axis=1)
+  cws = jnp.cumsum(ows, axis=1)
 
   ## Reshape to broadcast.
-  cws.shape = (D, N, 1)
-  qs.shape  = (1, 1, M)
+  cws = jnp.reshape(cws, (D, N, 1))
+  qs  = jnp.reshape(qs, (1, 1, M))
 
   ## Use broadcasting to get all comparisons of <cws> with each entry from <qs>. 
   ## Form tensor (cws <= qs) * 1 and sandwich index of the value vectors with 0 and 1.
-  A = np.concatenate([np.ones(M*D).reshape(D,1,M), (cws <= qs) * 1, np.zeros(M*D).reshape(D,1,M)], axis=1)
+  A = jnp.concatenate([jnp.reshape(jnp.ones(M*D), (D,1,M)), (cws <= qs) * 1, jnp.reshape(jnp.zeros(M*D), (D,1,M))], axis=1)
   
   ## Compute the index difference on the value vectors.
-  Delta = np.diff(A, axis=1).astype(int)
+  Delta = jnp.diff(A, axis=1).astype(int)
 
   ## Get the index of the values, this leaves, essentially, a (D, M) matrix. Reshape it as such.
-  idx = np.maximum(0, np.where(Delta == -1)[1] - 1)
-  idx = idx.reshape(D, M) 
+  idx = jnp.maximum(0, jnp.where(Delta == -1)[1] - 1)
+  idx = jnp.reshape(idx, (D, M)) 
   
   ## Return the values in the value vectors that correspond to these indices -- the M quantiles for each of the D value vectors.
   ## A (D, M) matrix.
-  return(np.take_along_axis(ovs, idx, axis=1))
+  return(jnp.take_along_axis(ovs, idx, axis=1))
 
 
 def assessment_agr_rets(df, ret_field, wgt_field, filt=True):
@@ -203,7 +217,7 @@ def assessment_agr_rets(df, ret_field, wgt_field, filt=True):
   Parameters
   ----------
   df       : A Pandas DataFrame with required fields.
-  ret_field: A field representing an numpy array of returns.
+  ret_field: A field representing an (M) numpy array of returns.
   wgt_field: A weight field, used to weight the returns in a given row.
        
   Returns
@@ -212,11 +226,12 @@ def assessment_agr_rets(df, ret_field, wgt_field, filt=True):
   
   Return-Type
   -----------
-  numpy(np) array(float)
+  numpy(np) array (M) (float)
   
   Packages
   --------
   numpy(np)
+  jax.numpy(jnp)
   pandas
   '''
   
@@ -225,7 +240,10 @@ def assessment_agr_rets(df, ret_field, wgt_field, filt=True):
   if np.shape(filt) == ():
     fl = np.repeat(filt, df.shape[0])
 
-  return(np.average(np.stack(df.loc[fl, ret_field]), weights=df.loc[fl, wgt_field], axis=0)).astype(float)
+  A = np.stack(df.loc[fl, ret_field]).astype(float)
+  A = jnp.asarray(A)
+  W = jnp.asarray(df.loc[fl, wgt_field])
+  return(jnp.average(jnp.stack(A), weights=W, axis=0)).astype(float)
 
 
 
@@ -265,16 +283,13 @@ def assessment_wgt_quant_rets(df, ret_field, wgt_field, quants, filt=True):
   ## Apply the filter to the data set.
   if np.shape(filt) == ():
     fl = np.repeat(filt, df.shape[0])
+ 
+  ## Get the numpy (D, N) Matrix of returns from the dataframe and the corresponding numpy (N) array of weights.
+  A = np.dstack(df.loc[fl, ret_field])[0].astype(float)
+  W = df.loc[fl, wgt_field].to_numpy()
 
-  ## Make a copy of the data set and retrieve the weights (N) and the (D, N) array of returns.
-  A = df.loc[fl, :].copy()  
-  W = A[wgt_field].to_numpy()
-  A = np.dstack(A[ret_field])[0]
-
-  ## Compute the DxM quantile returns.
+  ## Compute the DxM numpy quantile returns.
   return(wgt_quantiles_tensor(A, W, quants))
-
-
 
 
 def assessment_wgt_median_rets(df, ret_field, wgt_field, filt=True):
@@ -289,7 +304,7 @@ def assessment_wgt_median_rets(df, ret_field, wgt_field, filt=True):
 
   Returns
   -------
-  A numpy array of weighted quantile returns.
+  A numpy (M) array of weighted quantile returns.
 
   Return-Type
   -----------
@@ -312,10 +327,11 @@ def assessment_wgt_median_rets(df, ret_field, wgt_field, filt=True):
   if np.shape(filt) == ():
     fl = np.repeat(filt, df.shape[0])
 
-  A = df.loc[fl, :].copy()
+  A = np.dstack(df.loc[fl, ret_field])[0].astype(float)
   W = A[wgt_field].to_numpy()
-  A = np.dstack(A[ret_field])[0]
 
   Z = wgt_quantiles_tensor(A, W, np.array([0.5]))
   return(Z[:, 0])
+
+
 
