@@ -88,7 +88,7 @@ Parameter Contract
   
   ## Reshape to broadcast.
   cws = jnp.reshape(cws, (N, 1))
-  qs = jnp.reshape(qs, (1, M))
+  qs  = jnp.reshape(qs, (1, M))
   
   ## Use broadcasting to get all comparisons of <cws> with each entry from <qs>.  
   ## Form tensor (cws <= qs) * 1 and sandwich index of the value vectors with 0 and 1.
