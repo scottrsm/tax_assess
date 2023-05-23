@@ -31,11 +31,19 @@ class NotNumpyArray(Exception):
     self.message = message
     super().__init__(self.message) 
 
-class NotAMatrix(Exception):
+class Not1DNumpyArray(Exception):
+  '''
+    Array is not a 1-D numpy array.
+  '''
+  def __init__(self, message="Array is not a 1-D numpy array."):
+    self.message = message
+    super().__init__(self.message) 
+
+class Not2DNumpyMatrix(Exception):
   '''
     Array is not a matrix.
   '''
-  def __init__(self, message="Array is not a matrix."):
+  def __init__(self, message="Array is not a numpy matrix."):
     self.message = message
     super().__init__(self.message) 
     

@@ -1,6 +1,5 @@
 
 import numpy as np
-import jax
 import jax.numpy as jnp
 import array_except as ne
 
@@ -42,19 +41,25 @@ Parameter Contract
   '''
   
   ## 1. Are vs, wts, and qs are numpy arrays?
-  if type(vs)  != jnp.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles: <vs> : Not a numpy array.' ))
-  if type(wts) != jnp.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles: <wts>: Not a numpy array.' ))
-  if type(qs)  != jnp.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles: <qs> : Not a numpy array.' ))
+  if type(vs)  != np.ndarray:
+    raise(ne.NotNumpyArray('wgt_quantiles: <vs> : Not a numpy array.'              ))
+  if len(vs.shape) != 1:
+    raise(ne.Not1DNumpyArray('wgt_quantiles_tensor: <vs>: Not a 1-D numpy array.'  ))
+  if type(wts) != np.ndarray:
+    raise(ne.NotNumpyArray('wgt_quantiles: <wts>: Not a numpy array.'              ))
+  if len(wts.shape) != 1:
+    raise(ne.Not1DNumpyArray('wgt_quantiles_tensor: <wts>: Not a 1-D numpy array.' ))
+  if type(qs)  != np.ndarray:
+    raise(ne.NotNumpyArray('wgt_quantiles: <qs> : Not a numpy array.'              ))
+  if len(qs.shape) != 1:
+    raise(ne.Not1DNumpyArray('wgt_quantiles_tensor: <qs>: Not a 1-D numpy array.'  ))
     
   ## 2. All qs values in [0.0, 1.0]?
   if any((qs < 0.0) | (qs > 1.0)):
     raise(ne.NotProperQuantile('wgt_quantiles: <qs>: Not a proper quantiles array.'))
   
   ## 3. The length of vs and wts is the same?
-  if np.size(vs) != jnp.size(wts):
+  if np.size(vs) != np.size(wts):
     raise(ne.WeightArrayMisMatch('wgt_quantiles: <vs> and <wts> do not have the same length.'))
 
   ## 4. all wts >= 0?
@@ -120,6 +125,7 @@ def wgt_quantiles_tensor(vs, wts, qs):
   
   Packages
   --------
+  numpy(np)
   jax.numpy(jnp)
   
   Parameter Contract
@@ -139,19 +145,19 @@ def wgt_quantiles_tensor(vs, wts, qs):
   
   ## 1. Are vs and wts are numpy arrays?
   if type(wts) != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles_tensor: <wts>: Not a numpy array.' ))
+    raise(ne.NotNumpyArray(  'wgt_quantiles_tensor: <wts>: Not a numpy array.'  ))
   if len(wts.shape) != 1:
-    raise(ne.NotAMatrix(   'wgt_quantiles_tensor: <wts>: Not a 1-D array.'   ))
+    raise(ne.Not1DNumpyArray('wgt_quantiles_tensor: <wts>: Not a 1-D array.'    ))
   if type(qs) != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles_tensor: <qs>: Not a numpy array.'  )) 
+    raise(ne.NotNumpyArray(  'wgt_quantiles_tensor: <qs>: Not a numpy array.'   )) 
   if len(qs.shape) != 1:
-    raise(ne.NotAMatrix(   'wgt_quantiles_tensor: <qs>: Not a 1-D array.'    ))
+    raise(ne.Not1DNumpyArray('wgt_quantiles_tensor: <qs>: Not a 1-D array.'     ))
 
   ## 2. Is vs is a numpy matrix?
   if type(vs)  != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles_tensor: <vs>: Not a numpy array.'  ))
+    raise(ne.NotNumpyArray(   'wgt_quantiles_tensor: <vs>: Not a numpy array.'  ))
   if len(vs.shape) != 2:
-    raise(ne.NotAMatrix(   'wgt_quantiles_tensor: <vs>: Not a matrix.'       ))
+    raise(ne.Not2DNumpyMatrix('wgt_quantiles_tensor: <vs>: Not a numpy matrix.' ))
     
   ## 3. All qs values in [0.0, 1.0]?
   if any((qs < 0.0) | (qs > 1.0)):

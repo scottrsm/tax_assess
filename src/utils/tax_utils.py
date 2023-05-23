@@ -39,11 +39,17 @@ Parameter Contract
   
   ## 1. Are vs, wts, and qs are numpy arrays?
   if type(vs)  != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles: <vs>: Not an numpy array.' ))
+    raise(ne.NotNumpyArray('wgt_quantiles: <vs> : Not a numpy array.'              ))
+  if len(vs.shape) != 1:
+    raise(ne.Not1DNumpyArray('wgt_quantiles_tensor: <vs>: Not a 1-D numpy array.'  ))
   if type(wts) != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles: <wts>: Not an numpy array.'))
+    raise(ne.NotNumpyArray('wgt_quantiles: <wts>: Not a numpy array.'              ))
+  if len(wts.shape) != 1:
+    raise(ne.Not1DNumpyArray('wgt_quantiles_tensor: <wts>: Not a 1-D numpy array.' ))
   if type(qs)  != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles: <qs>: Not an numpy array.'))
+    raise(ne.NotNumpyArray('wgt_quantiles: <qs> : Not a numpy array.'              ))
+  if len(qs.shape) != 1:
+    raise(ne.Not1DNumpyArray('wgt_quantiles_tensor: <qs>: Not a 1-D numpy array.'  ))
     
   ## 2. All qs values in [0.0, 1.0]?
   if any((qs < 0.0) | (qs > 1.0)):
@@ -59,7 +65,7 @@ Parameter Contract
 
   ## 5. sum(wts) > 0?
   if sum(wts) <= 0:
-    raise(ne.WeightSumNotPositive('wgt_quantiles: Sum of <wts> is not positive.'))
+    raise(ne.WeightSumNotPositive('wgt_quantiles: The sum of the elements of <wts> is not positive.'))
       
   ## Sort the vs array and the associated weights.
   ## Turn the weights into proper weights and create a cumulative weight array.
@@ -130,20 +136,20 @@ def wgt_quantiles_tensor(vs, wts, qs):
   
   ## 1. Are vs and wts are numpy arrays?
   if type(wts) != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles_tensor: <wts>: Not an numpy array.'))
+    raise(ne.NotNumpyArray(  'wgt_quantiles_tensor: <wts>: Not a numpy array.'  ))
   if len(wts.shape) != 1:
-    raise(ne.NotAMatrix('wgt_quantiles_tensor: <wts>: Not a 1-D array.'))
+    raise(ne.Not1DNumpyArray('wgt_quantiles_tensor: <wts>: Not a 1-D array.'    ))
   if type(qs) != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles_tensor: <qs>: Not an numpy array.')) 
+    raise(ne.NotNumpyArray(  'wgt_quantiles_tensor: <qs>: Not a numpy array.'   )) 
   if len(qs.shape) != 1:
-    raise(ne.NotAMatrix('wgt_quantiles_tensor: <qs>: Not a 1-D array.'))
+    raise(ne.Not1DNumpyArray('wgt_quantiles_tensor: <qs>: Not a 1-D array.'     ))
 
   ## 2. Is vs is a numpy matrix?
   if type(vs)  != np.ndarray:
-    raise(ne.NotNumpyArray('wgt_quantiles_tensor: <vs>: Not an numpy array.' ))
+    raise(ne.NotNumpyArray(   'wgt_quantiles_tensor: <vs>: Not a numpy array.'  ))
   if len(vs.shape) != 2:
-    raise(ne.NotAMatrix('wgt_quantiles_tensor: <vs>: Not a matrix.'))
-    
+    raise(ne.Not2DNumpyMatrix('wgt_quantiles_tensor: <vs>: Not a numpy matrix.' ))
+
   ## 3. All qs values in [0.0, 1.0]?
   if any((qs < 0.0) | (qs > 1.0)):
     raise(ne.NotProperQuantile('wgt_quantiles_tensor: <qs>: Not a proper quantiles array.'))
@@ -158,7 +164,7 @@ def wgt_quantiles_tensor(vs, wts, qs):
 
   ## 6. Is sum(wts) > 0?
   if sum(wts) <= 0:
-    raise(ne.WeightSumNotPositive('wgt_quantiles_tensor: Sum of <wts> is not positive.'))
+    raise(ne.WeightSumNotPositive('wgt_quantiles_tensor: The sum of the elements of <wts> is not positive.'))
   
   ## Normalize the weights.
   ws  = wts / np.sum(wts)
