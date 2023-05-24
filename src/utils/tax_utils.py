@@ -84,7 +84,7 @@ Parameter Contract
   qss.shape  = (1, M)
   
   ## Use broadcasting to get all comparisons of <cws> with each entry from <qs>.  
-  ## Form tensor (cws <= qs) * 1 and sandwich index of the value vectors with 0 and 1.
+  ## Form tensor (cws <= qss) * 1 and sandwich index of the value vectors with 0 and 1.
   A   = np.concatenate([np.ones(M).reshape(1,M), (cws <= qss) * 1, np.zeros(M).reshape(1,M)], axis=0)
   
   ## Get the diff -- -1 will indicate where the boundary is where cws > qs.
@@ -189,7 +189,7 @@ def wgt_quantiles_tensor(vs, wts, qs):
   qss.shape  = (1, 1, M)
 
   ## Use broadcasting to get all comparisons of <cws> with each entry from <qs>. 
-  ## Form tensor (cws <= qs) * 1 and sandwich index of the value vectors with 0 and 1.
+  ## Form tensor (cws <= qss) * 1 and sandwich index of the value vectors with 0 and 1.
   A = np.concatenate([np.ones(M*D).reshape(D,1,M), (cws <= qss) * 1, np.zeros(M*D).reshape(D,1,M)], axis=1)
   
   ## Compute the index difference on the value vectors.

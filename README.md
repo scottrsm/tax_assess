@@ -1,5 +1,5 @@
-# Project Overview
-This project is concerned with processing land parcels of incorporated villages and unincorporated Greenburg.
+## Project Overview
+This project is concerned with processing land parcels of incorporated villages and unincorporated regions of Greenburg, New York, USA.
 The incorporated villages of Greenburgh are:
 - Ardsley
 - Dobbs Ferry
@@ -8,20 +8,19 @@ The incorporated villages of Greenburgh are:
 - Irvington
 - Tarrytown
 
-## Project Structure
-- pdfdata -- Raw PDF data from Greenburgh Assessor's web site. File extension: *.pdf*.
+### Project Structure
+- pdfdata -- Raw PDF data from Assessor's web site. File extension: *.pdf*.
 - indata  -- Contains raw text data scraped from pdf files in directory *pdfdata*. File extension: *.txt*.
-- outdata -- Processed raw TXT files from *indata*. File extension: *.psv*. 
-- src     -- Contains shell and awk scripts to process raw PDF 
-             data files in directory *pdfdata* into raw TXT 
-             in *indata*; which, in turn, are transformed into
-             PSV files and placed into *outdata*. 
-- taxdb   -- SQL Lite script, create_taxrec; which when run, produces the taxrec.db database in this directory.
+- outdata -- Processed *indata* files. File extension: *.psv*. 
+- src     -- Contains shell and awk scripts to process raw TXT data files in directory *indata*
+             and place processed PSV files to *outdata*.
+- taxdb   -- Contains the SQL Lite database created from the outdata files.
+             Also as the SQL Lite script create_taxrec used to create the database.
 
 
 
-## Data Source
-The data source is the Assessment records from the Hartsdale, NY town web site.
+### Data Source
+The data source is the Assessment records from the Hartsdale, NY town web site:
 The data is currently stored as PDFs of reports on a yearly basis. The two most recent 
 are stored at: [Current Assessments](https://www.greenburghny.com/169/Assessment-Rolls).
 
@@ -96,37 +95,43 @@ The code below has now been placed in the two scripts: src/rawpdf2rawtxt.sh, and
         done
       </pre>
 
-## Output File Format
+### Output File Format
 The processed files in the directory outdata have the following schema:
 
 - Format:  SWIS, TOWN, ADDR, ACCT, PARCEL_ID, PARCEL_TYPE, LUC, OWN1, OWN2, ACCR, FULL_MKT_VAL 
 - Field Descriptions:
     - This is the header of the pipe separated file that will be generated.
     - The fields are:
-        - YEAR          -- The **year** of the record. **NOTE:** This field is passed in from the above shell scripts.
-        - SWIS          -- The **SWIS** number for town of the parcel.
-        - TOWN          -- The **town** name for the parcel.
-        - ADDR          -- The **address** within the town.
-        - ACCT          -- The **account number** for this parcel.
-        - PARCEL_ID     -- The **parcel ID**. It is believed the first part of this string (or all of it) can be 
-                           matched with the following regular expression pattern: '^[0-9]\.[0-9]+-[0-9]+0[0-9]+'
-                           However, there is no dependence on this assumption in the code used to process the data.
-        - PARCEL_TYPE   -- The **parcel type**; e.g., Single family residence, etc.
-        - LUC           -- (L)and (U)se (C)ode for this parcel.
-        - OWN1          -- The **first owner** (Or name of business)
-        - OWN2          -- The **second owner** or address of property.
-        - ACCR          -- The **acreage** of the property.
-        - FULL_MKT_VAL  -- The **full market value** of the parcel -- land value + building value.
+    - YEAR          -- The **year** of the record. **NOTE:** This field is passed in from the above shell scripts.
+    - SWIS          -- The **SWIS** number for town of the parcel.
+    - TOWN          -- The **town** name for the parcel.
+    - ADDR          -- The **address** within the town.
+    - ACCT          -- The **account number** for this parcel.
+    - PARCEL_ID     -- The **parcel ID**. It is believed the first part of this string (or all of it) can be 
+                       matched with the following regular expression pattern: '^[0-9]\.[0-9]+-[0-9]+0[0-9]+'
+                       However, there is no dependence on this assumption in the code used to process the data.
+    - PARCEL_TYPE   -- The **parcel type**; e.g., Single family residence, etc.
+    - LUC           -- (L)and (U)se (C)ode for this parcel.
+    - OWN1          -- The **first owner** (Or name of business)
+    - OWN2          -- The **second owner** or address of property.
+    - ACCR          -- The **acreage** of the property.
+    - FULL_MKT_VAL  -- The **full market value** of the parcel -- land value + building value.
+
+### Create Tax Assessment Database
+Uses the SQL Lite script, taxdb/create_taxrec, to create SQL Lite database taxrec.db with one table, taxrec,
+with schema/type: 
+
+YEAR : INT, SWIS : INT, TOWN : TEXT, ADDR : TEXT
+
+ACCT : TEXT, PARCEL_ID : TEXT, PARCEL_TYPE : TEXT, LUC : INT
+
+OWN1 TEXT, OWN2 TEXT, ACCR FLOAT, FULL_MKT_VALUE INT
 
 
-## SQL Lite Database
-The script, *create_taxrec*, is a SQL Lite script that creates the taxrec.db database located in the *taxdb* directory.
-It uses the data in the *outdata* directory to do so.
-The databases's only table is *taxrec*.
 
-## Tax Assessment Analysis
-The Jupyter notebook src/Tax_Assessment.ipynb analyzes the SQL-lite database and compares, after filtering/cleaning the data,
-the aggregated returns based on different aggregation methods.
+### Tax Assessment Analysis
+The Jupyter notebook file, *src/Tax_Assessment.ipynb, analyzes the SQL-lite database and compares
+the aggregated returns based on different aggregation and filtering methods.
 
 
 
