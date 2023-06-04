@@ -28,7 +28,7 @@ Previous years are stored at: [Historic Assessments](https://www.greenburghny.co
 
 ## Process Raw Parcel Data
 The parcel data was obtained from the Harsdale Tax Assessor's office stored as PDFs.
-There are 11 data files, one for each year from 2012 to 2022.
+There are 12 data files, one for each year from 2012 to 2023.
 These files are stored in the directory *pdfdata*.
 The files are converted to raw TXT files. As the dates 2012-2017 and 2018- have different 
 formats, the conversion for each is different:
@@ -46,7 +46,7 @@ The code below has now been placed in the two scripts: src/rawpdf2rawtxt.sh, and
         done
       </pre>
 
-    - Date Range: 2018-2022
+    - Date Range: 2018-2023
       <pre>
         cd pdfdata 
 
@@ -57,8 +57,8 @@ The code below has now been placed in the two scripts: src/rawpdf2rawtxt.sh, and
           mv $txtfile ../indata/
         done
 
-        ## Process 2020-2022 PDF files:
-        for file in 202[012]*.pdf; do
+        ## Process 2020-2023 PDF files:
+        for file in 202[0123]*.pdf; do
           txtfile=$(echo $file | sed 's/\.pdf$/.txt/')
           pdftotext -layout $file 
           mv $txtfile ../indata/
@@ -76,7 +76,7 @@ The code below has now been placed in the two scripts: src/rawpdf2rawtxt.sh, and
           gawk -v year=$year -f ../src/tax_2012_2017.awk $file > ../outdata/$outfile
         done
       </pre>
-    - Date Range: 2018-2022
+    - Date Range: 2018-2023
      <pre>
         cd indata 
 
@@ -87,8 +87,8 @@ The code below has now been placed in the two scripts: src/rawpdf2rawtxt.sh, and
           gawk -v year=$year -f ../src/tax_2018_.awk $file > ../outdata/$outfile
         done
 
-        ## Process 2020-2022 TXT files:
-        for file in 202[012]*.txt; do
+        ## Process 2020-2023 TXT files:
+        for file in 202[0123]*.txt; do
           outfile=$(echo $file | sed 's/\.txt$/.psv/') 
           year=$(echo $file | sed 's/^\([0-9]\+\)_.*$/\1/')
           gawk -v year=$year -f ../src/tax_2018_.awk $file > ../outdata/$outfile
@@ -118,8 +118,14 @@ The processed files in the directory outdata have the following schema:
     - FULL_MKT_VAL  -- The **full market value** of the parcel -- land value + building value.
 
 ### Create Tax Assessment Database
-Uses the SQL Lite script, taxdb/create_taxrec, to create SQL Lite database taxrec.db with one table, taxrec,
-with schema/type: 
+Use the SQL Lite script, taxdb/create_taxrec, to create SQL Lite database taxrec.db with one table, taxrec
+as follows:
+1. cd taxdb
+2. sqlite3 taxrec.db
+   .read create_taxrec
+3. Exit from sqlite3 shell
+
+The table taxrec will be created in the database taxdb/taxrec.db with schema/type: 
 
 YEAR : INT, SWIS : INT, TOWN : TEXT, ADDR : TEXT
 

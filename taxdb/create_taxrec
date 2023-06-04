@@ -17,6 +17,7 @@ create table taxrec('YEAR' INT, 'SWIS' INT, 'TOWN' TEXT, 'ADDR' TEXT,
 .import --skip 1 ../outdata/2020_Final_Assessment.psv taxrec
 .import --skip 1 ../outdata/2021_Final_Assessment.psv taxrec
 .import --skip 1 ../outdata/2022_Final_Assessment.psv taxrec
+.import --skip 1 ../outdata/2023_Final_Assessment.psv taxrec
 
 
 

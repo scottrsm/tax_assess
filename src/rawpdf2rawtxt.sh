@@ -12,38 +12,39 @@ tmpFile=tmp.$$
 
 
 ## Set trap to remove temp file on exit.
-trap "rm -f $tmpFile" EXIT TERM INT QUIT
+trap 'rm -f $tmpFile' EXIT TERM INT QUIT
 
 ## Move to the data directory to process.
 cd ../pdfdata
 
  ## Process PDF files: Date Range: 2012-2017
 for file in 201[234567]*.pdf; do
-  txtfile=$(echo $file | sed 's/\.pdf$/.txt/')
+  txtfile=${file/%.pdf/.txt}
   echo "Working on file, \"$file\"" 1>&2
-  pdf2txt $file > $txtfile
-  sed 's/\"//g' $txtfile > $tmpFile
-  sed 's/ $/  /' $tmpFile > $txtfile
-  mv $txtfile ../indata/$txtfile
+  pdf2txt "$file" > "$txtfile"
+  sed 's/\"//g' "$txtfile" > $tmpFile
+  sed 's/ $/  /' "$tmpFile" > "$txtfile"
+  mv "$txtfile" "../indata/$txtfile"
 done
 
-## Process PDF files: Date Range: 2018-2022
+## Process PDF files: Date Range: 2018-2023
 ## Process 2018-2019 TXT files:
 for file in 201[89]*.pdf; do
-  txtfile=$(echo $file | sed 's/\.pdf$/.txt/')
+  txtfile=${file/%.pdf/.txt}
   echo "Working on file, \"$file\"" 1>&2
-  pdftotext -layout $file 
-  sed 's/\"//g' $txtfile > $tmpFile
-  mv $tmpFile ../indata/$txtfile
+  pdftotext -layout "$file" 
+  sed 's/\"//g' "$txtfile" > $tmpFile
+  mv "$tmpFile" "../indata/$txtfile"
 done
 
-## Process PDF files: Date Range: 2020-2022
-for file in 202[012]*.pdf; do
-  txtfile=$(echo $file | sed 's/\.pdf$/.txt/')
+## Process PDF files: Date Range: 2020-2023
+for file in 202[0123]*.pdf; do
+  txtfile=${file/%.pdf/.txt}
   echo "Working on file, \"$file\"" 1>&2
-  pdftotext -layout $file 
-  sed 's/\"//g' $txtfile > $tmpFile
-  mv $tmpFile ../indata/$txtfile
+  pdftotext -layout "$file" 
+  sed 's/\"//g' "$txtfile" > $tmpFile
+  mv "$tmpFile" "../indata/$txtfile"
+  rm -f "$txtfile"
 done
 
 
