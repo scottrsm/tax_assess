@@ -122,7 +122,7 @@ Use the SQL Lite script, taxdb/create_taxrec, to create SQL Lite database taxrec
 as follows:
 1. cd taxdb
 2. sqlite3 taxrec.db
-   .read create_taxrec
+   .read create_taxrec.sql
 3. Exit from sqlite3 shell
 
 The table taxrec will be created in the database taxdb/taxrec.db with schema/type: 
@@ -137,8 +137,15 @@ OWN1 TEXT, OWN2 TEXT, ACCR FLOAT, FULL_MKT_VALUE INT
 
 ### Tax Assessment Analysis
 The Jupyter notebook file, *src/Tax_Assessment.ipynb, analyzes the SQL-lite database and compares
-the aggregated returns based on different aggregation and filtering methods.
+the aggregated returns (and cumulative returns) based on different aggregation and filtering methods.
 
+**NOTE:** To ensure that you have access to the python libraries used in the notebook, you may 
+need to run bash within a given shell and set and export the environment variable
+PYTHONPATH, appropriately, before launching "jupyter lab".
+For instance, export PYTHONPATH=<existing-python-path>:<path-to-tax_assessement_project>/src/utils:<path-to-vec_analysis>
+With this path one gets access to the tax_utils module and the vec_analysis module needed by tax_utils.
+
+Currently, the vec_analysis is in a separate repo on this site.
 
 
 

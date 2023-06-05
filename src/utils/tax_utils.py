@@ -1,275 +1,6 @@
 import numpy as np
+import vec_analytics as va
 
-
-def chk_wgt_quantiles_contract(vs :np.ndarray, 
-                               wts:np.ndarray, 
-                               qs :np.ndarray ) -> None:
-    """
-    Function which checks the input parameter contract for the function: wgt_quantiles.
-
-    Parameter Contract
-    -----------------
-    1. vs, wts, qs are all numpy 1-d arrays.
-    2. qs in [0.0, 1.0]
-    3. |vs| == |wts|
-    4. all(wts) >= 0
-    5. sum(wts) > 0
-
-    Return
-    ------
-    None
-
-    Throws
-    ------
-    ValueError
-
-    """
-    ## 1. Are vs, wts, and qs are numpy arrays?
-    if type(vs)  != np.ndarray:
-        raise(ValueError('wgt_quantiles: <vs> : Not a numpy array.'     ))
-    if len(vs.shape) != 1:
-        raise(ValueError('wgt_quantiles: <vs>: Not a 1-D numpy array.'  ))
-    if type(wts) != np.ndarray:
-        raise(ValueError('wgt_quantiles: <wts>: Not a numpy array.'     ))
-    if len(wts.shape) != 1:
-        raise(ValueError('wgt_quantiles: <wts>: Not a 1-D numpy array.' ))
-    if type(qs)  != np.ndarray:
-        raise(ValueError('wgt_quantiles: <qs> : Not a numpy array.'     ))
-    if len(qs.shape) != 1:
-        raise(ValueError('wgt_quantiles: <qs>: Not a 1-D numpy array.'  ))
-    
-    ## 2. All qs values in [0.0, 1.0]?
-    if any((qs < 0.0) | (qs > 1.0)):
-        raise(ValueError('wgt_quantiles: <qs>: Not a proper quantiles array.'))
-  
-    ## 3. The length of vs and wts is the same?
-    if np.size(vs) != np.size(wts):
-        raise(ValueError('wgt_quantiles: <vs> and <wts> do not have the same length.'))
-
-    ## 4. all wts >= 0?
-    if any(wts < 0.0):
-        raise(ValueError('wgt_quantiles: <wts> has one or more negative elements.'))
-
-    ## 5. sum(wts) > 0?
-    if sum(wts) <= 0:
-        raise(ValueError('wgt_quantiles: The sum of the elements of <wts> is not positive.'))
-      
-
-
-def chk_wgt_quantiles_tensor_contract(vs :np.ndarray, 
-                                      wts:np.ndarray, 
-                                      qs :np.ndarray ) -> None:
-    """
-    This function checks the input parameter contract for the function wgt_quantiles_tensor.
-
-    Parameter Contract
-    -----------------
-    1. vs, and wts are numpy arrays.
-    2. vs is a numpy matrix.
-    3. qs in [0.0, 1.0]
-    4. |vs[0]| == |wts|
-    5. all(wts) >= 0
-    6. sum(wts) > 0
-
-    Return
-    ------
-    None
-
-    Throws
-    ------
-    ValueError
-
-    """
-    ## 1. Are vs and wts are numpy arrays?
-    if type(wts) != np.ndarray:
-        raise(ValueError('wgt_quantiles_tensor: <wts>: Not a numpy array.'  ))
-    if len(wts.shape) != 1:
-        raise(ValueError('wgt_quantiles_tensor: <wts>: Not a 1-D array.'    ))
-    if type(qs) != np.ndarray:
-        raise(ValueError('wgt_quantiles_tensor: <qs>: Not a numpy array.'   )) 
-    if len(qs.shape) != 1:
-        raise(ValueError('wgt_quantiles_tensor: <qs>: Not a 1-D array.'     ))
-
-    ## 2. Is vs is a numpy matrix?
-    if type(vs)  != np.ndarray:
-        raise(ValueError('wgt_quantiles_tensor: <vs>: Not a numpy array.'   ))
-    if len(vs.shape) != 2:
-        raise(ValueError('wgt_quantiles_tensor: <vs>: Not a numpy matrix.'  ))
-
-    ## 3. All qs values in [0.0, 1.0]?
-    if any((qs < 0.0) | (qs > 1.0)):
-        raise(ValueError('wgt_quantiles_tensor: <qs>: Not a proper quantiles array.'))
-  
-    ## 4. The length of vs rows and the length of wts are the same?
-    if np.size(vs[0]) != np.size(wts):
-        raise(ValueError("wgt_quantiles_tensor: The rows of <vs> don't have the same length as <wts>."))
-
-    ## 5. Are all wts elements >= 0?
-    if any(wts < 0.0):
-        raise(ValueError('wgt_quantiles_tensor: Weights array, <wts>, has one or more negative elements.'))
-
-    ## 6. Is sum(wts) > 0?
-    if sum(wts) <= 0:
-        raise(ValueError('wgt_quantiles_tensor: The sum of the elements of <wts> is not positive.'))
-  
-
-
-def wgt_quantiles(vs :np.ndarray, 
-                  wts:np.ndarray, 
-                  qs :np.ndarray ) -> np.ndarray:
-    '''
-    Get a numpy array consisting of an array of quantile weighted <vs> values.
-    
-    Parameters
-    ----------
-    vs    A numpy(np) (N) array of numeric values. 
-    wts   A numpy(np) (N) array of numeric weights. (Weights need only be non-negative, they need not sum to 1.)
-    qs    A numpy(np) (D) array of numeric values.  (Meant to be quantiles -- numbers in the range [0, 1]).
-
-    Returns
-    -------
-    :A numpy array consisting of the quantile weighted values of <vs> using weights, <wts>, for each quantile in <qs>.
-  
-    Return-Type
-    -----------
-    A numpy(np) (D) array of weighted quantile <vs> values with the same length as <qs>.
-  
-    Packages
-    --------
-    numpy(np)
-
-    Parameter Contract
-    -----------------
-    1. vs, wts, qs are all numpy arrays.
-    2. qs in [0.0, 1.0]
-    3. |vs| == |wts|
-    4. all(wts) >= 0
-    5. sum(wts) > 0
-    
-    Return
-    ------
-    A numpy array of length D.
-
-    Throws
-    ------
-    ValueError
-
-    Assumptions
-    -----------
-    1. <vs>, <wts>, and <qs> are all numeric arrays.
-    '''
-  
-
-    ## Check input parameter contract.
-    chk_wgt_quantiles_contract(vs, wts, qs)
-
-    ## Sort the vs array and the associated weights.
-    ## Turn the weights into proper weights and create a cumulative weight array.
-    idx  = np.argsort(vs)
-    ovs  = vs[idx]
-    ows  = wts[idx]
-    ows  = ows / np.sum(ows) # Normalize the weights.
-    cws  = np.cumsum(ows)
-  
-    N    = np.size(cws)
-    M    = np.size(qs)
-  
-    ## Reshape to broadcast.
-    cws.shape = (N, 1)
-    qss = qs.copy()
-    qss.shape  = (1, M)
-  
-    ## Use broadcasting to get all comparisons of <cws> with each entry from <qs>.  
-    ## Form tensor (cws <= qss) * 1 and sandwich index of the value vectors with 0 and 1.
-    A   = np.concatenate([np.ones(M).reshape(1,M), (cws <= qss) * 1, np.zeros(M).reshape(1,M)], axis=0)
-  
-    ## Get the diff -- -1 will indicate the boundary where cws > qs.
-    X   = np.diff(A, axis=0).astype(int)
-  
-    ## Get the indices of the boundary.
-    idx = np.maximum(0, np.where(X == -1)[0] - 1)
-  
-    ## Return the weighted quantile value of <vs> against each <qs>.
-    return(ovs[idx])
-
-
-def wgt_quantiles_tensor(vs :np.ndarray, 
-                         wts:np.ndarray, 
-                         qs :np.ndarray ) -> np.ndarray:
-    '''
-    Compute a (D, M) numpy array consisting of the quantile weighted values of <vs> using weights, <wts>, for each quantile in <qs>.
-    
-    Parameters
-    ----------
-    vs    A numpy(np) (D, N) matrix of numeric values. 
-    wgts  A numpy(np) (N) array of numeric weights. (Weights need only be non-negative, they need not sum to 1.)
-    qs    A numpy(np) (M) array of numeric values.  (Meant to be quantiles -- numbers in the range [0, 1]).
-  
-    Returns
-    -------
-    A (D, M) numpy array of numeric values.
-  
-    Throws
-    ------
-    ValueError
-  
-    Packages
-    --------
-    numpy(np)
-  
-    Parameter Contract
-    -----------------
-    1. vs, and wts are numpy arrays.
-    2. vs is a numpy matrix.
-    3. qs in [0.0, 1.0]
-    4. |vs[0]| == |wts|
-    5. all(wts) >= 0
-    6. sum(wts) > 0
-    
-    Assumptions
-    -----------
-    1. <vs>, <wts>, and <qs> are all numeric arrays.
-
-    '''
-  
-    ## Check input parameter contract.
-    chk_wgt_quantiles_tensor_contract(vs, wts, qs)
-
-    ## Normalize the weights.
-    ws  = wts / np.sum(wts)
-  
-    D, N  = vs.shape
-    M     = qs.size
-
-    ## Get the sorted index array for each of the value vectors in vs.
-    idx = np.argsort(vs, axis=1)
-  
-    ## Apply this index back to vs to get sorted values.
-    ovs = np.take_along_axis(vs, idx, axis=1)
-  
-    ## Apply the index to the weights, where, the dimension of ws (and cws) expands to: (D, N).
-    ows = ws[idx]
-    cws = np.cumsum(ows, axis=1)
-
-    ## Reshape to broadcast.
-    cws.shape = (D, N, 1)
-    qss = qs.copy()
-    qss.shape  = (1, 1, M)
-
-    ## Use broadcasting to get all comparisons of <cws> with each entry from <qs>. 
-    ## Form tensor (cws <= qss) * 1 and sandwich index of the value vectors with 0 and 1.
-    A = np.concatenate([np.ones(M*D).reshape(D,1,M), (cws <= qss) * 1, np.zeros(M*D).reshape(D,1,M)], axis=1)
-  
-    ## Compute the index difference on the value vectors.
-    Delta = np.diff(A, axis=1).astype(int)
-
-    ## Get the index of the values, this leaves, essentially, a (D, M) matrix. Reshape it as such.
-    idx = np.maximum(0, np.where(Delta == -1)[1] - 1)
-    idx = idx.reshape(D, M) 
-  
-    ## Return the values in the value vectors that correspond to these indices -- the M quantiles for each of the D value vectors.
-    ## A (D, M) matrix.
-    return(np.take_along_axis(ovs, idx, axis=1))
 
 
 def assessment_agr_rets(df, ret_field, wgt_field, filt=True):
@@ -285,10 +16,6 @@ def assessment_agr_rets(df, ret_field, wgt_field, filt=True):
     Returns
     -------
     A numpy array of aggregated returns.
-  
-    Return-Type
-    -----------
-    numpy(np) array(float)
   
     Packages
     --------
@@ -311,17 +38,13 @@ def assessment_wgt_quant_rets(df, ret_field, wgt_field, quants, filt=True):
     
     Parameters
     ----------
-    df        : Pandas dataframe of length N and contains the field names of the returns and the weights from the variables: ret_field and wgt_field.
+    df        : Pandas DataFrame of length N and contains the field names of the returns and the weights from the variables: ret_field and wgt_field.
     ret_field : Field of <df> that contains D returns for each row.
-    wgt_field : Field of <df> containing the weights. (Weights must be non-negative, but do not need to sum to 1.
+    wgt_field : Field of <df> containing the weights. (Weights must be non-negative, but do not need to sum to 1.)
     quants    : A numpy (M) array of quantiles (in the range [0, 1]).
 
     Returns
     -------
-    A numpy array of weighted quantile returns.
-            :
-    Return-Type
-    -----------
     A (D, M) numpy array.
   
     Packages
@@ -335,7 +58,7 @@ def assessment_wgt_quant_rets(df, ret_field, wgt_field, quants, filt=True):
     2. <quants> is a numeric vector. 
     '''
   
-    ## If the filter value is a scalar -- replicate it to the length of the dataframe, <df>.
+    ## If the filter value is a scalar -- replicate it to the length of the DataFrame, <df>.
     fl = filt
   
     ## Apply the filter to the data set.
@@ -348,7 +71,7 @@ def assessment_wgt_quant_rets(df, ret_field, wgt_field, quants, filt=True):
     A = np.dstack(A[ret_field])[0]
 
     ## Compute the DxM quantile returns.
-    return(wgt_quantiles_tensor(A, W, quants))
+    return(va.wgt_quantiles_tensor(A, W, quants))
 
 
 
@@ -359,16 +82,12 @@ def assessment_wgt_median_rets(df, ret_field, wgt_field, filt=True):
 
     Parameters
     ----------
-    df        : Pandas dataframe of length N and contains the field names of the returns and the weights from the variables: ret_field and wgt_field.
+    df        : Pandas DataFrame of length N and contains the field names of the returns and the weights from the variables: ret_field and wgt_field.
     ret_field : Field of <df> that contains D returns for each row.
     wgt_field : Field of <df> containing the weights. (Weights must be non-negative, but do not need to sum to 1.)
 
     Returns
     -------
-    A numpy array of weighted quantile returns.
-
-    Return-Type
-    -----------
     A (D) numpy array.
 
     Packages
@@ -381,7 +100,7 @@ def assessment_wgt_median_rets(df, ret_field, wgt_field, filt=True):
     1. The fields, <ret_field> and <wgt_field> hold numeric values in <df>.
     '''
 
-    ## If the filter value is a scalar -- replicate it to the length of the dataframe, <df>.
+    ## If the filter value is a scalar -- replicate it to the length of the DataFrame, <df>.
     fl = filt
 
     ## Apply filter.
@@ -392,6 +111,6 @@ def assessment_wgt_median_rets(df, ret_field, wgt_field, filt=True):
     W = A[wgt_field].to_numpy()
     A = np.dstack(A[ret_field])[0]
 
-    Z = wgt_quantiles_tensor(A, W, np.array([0.5]))
+    Z = va.wgt_quantiles_tensor(A, W, np.array([0.5]))
     return(Z[:, 0])
 
