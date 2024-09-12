@@ -32,73 +32,16 @@ There are 12 data files, one for each year from 2012 to 2023.
 These files are stored in the directory *pdfdata*.
 The files are converted to raw TXT files. As the dates 2012-2017 and 2018- have different 
 formats, the conversion for each is different:
-The code below has now been placed in the two scripts: src/rawpdf2rawtxt.sh, and rawtxt2psv.sh.
-- PDF --> TXT:  Process PDF files to TXT files:
-    - Date Range: 2012-2017  
-      <pre> 
-        cd pdfdata 
-
-        ## Process 2012-2017 PDF files:
-        for file in 201[234567]*.pdf; do
-          txtfile=$(echo $file | sed 's/\.pdf$/.txt/')
-          pdf2txt $file
-          mv $txtfile ../indata/
-        done
-      </pre>
-
-    - Date Range: 2018-2023
-      <pre>
-        cd pdfdata 
-
-        ## Process 2018-2019 TXT files:
-        for file in 201[89]*.pdf; do
-          txtfile=$(echo $file | sed 's/\.pdf$/.txt/')
-          pdftotext -layout $file 
-          mv $txtfile ../indata/
-        done
-
-        ## Process 2020-2023 PDF files:
-        for file in 202[0123]*.pdf; do
-          txtfile=$(echo $file | sed 's/\.pdf$/.txt/')
-          pdftotext -layout $file 
-          mv $txtfile ../indata/
-        done
-      </pre>
-- TXT --> PSV: Process TXT files to PSV files:
-         There are two different scripts: one for each date range.
-    - Date Range: 2012-2017
-        <pre>
-        cd indata 
-
-        for file in 201[234567]*.txt; do
-          outfile=$(echo $file | sed 's/\.txt$/.psv/') 
-          year=$(echo $file | sed 's/^\([0-9]\+\)_.*$/\1/')
-          gawk -v year=$year -f ../src/tax_2012_2017.awk $file > ../outdata/$outfile
-        done
-      </pre>
-    - Date Range: 2018-2023
-     <pre>
-        cd indata 
-
-        ## Process 2018-2019 TXT files
-        for file in 201[89]*.txt; do
-          outfile=$(echo $file | sed 's/\.txt$/.psv/') 
-          year=$(echo $file | sed 's/^\([0-9]\+\)_.*$/\1/')
-          gawk -v year=$year -f ../src/tax_2018_.awk $file > ../outdata/$outfile
-        done
-
-        ## Process 2020-2023 TXT files:
-        for file in 202[0123]*.txt; do
-          outfile=$(echo $file | sed 's/\.txt$/.psv/') 
-          year=$(echo $file | sed 's/^\([0-9]\+\)_.*$/\1/')
-          gawk -v year=$year -f ../src/tax_2018_.awk $file > ../outdata/$outfile
-        done
-      </pre>
+Procedure:
+1.) cd src
+2.) ./rawpdf2rawtxt.sh
+3.) ./rawtxt2psv.sh
 
 ### Output File Format
-The processed files in the directory outdata have the following schema:
+After running the two scripts above, 
+the processed files in the directory outdata have the following schema:
 
-- Format:  SWIS, TOWN, ADDR, ACCT, PARCEL_ID, PARCEL_TYPE, LUC, OWN1, OWN2, ACCR, FULL_MKT_VAL 
+- Format:  SWIS, TOWN, ADDR, ACCT, PARCEL_ID, PARCEL_TYPE, LUC, OWN1, OWN2, ACCR, LAND_VAL, FULL_MKT_VAL 
 - Field Descriptions:
     - This is the header of the pipe separated file that will be generated.
     - The fields are:
@@ -108,14 +51,15 @@ The processed files in the directory outdata have the following schema:
     - ADDR          -- The **address** within the town.
     - ACCT          -- The **account number** for this parcel.
     - PARCEL_ID     -- The **parcel ID**. It is believed the first part of this string (or all of it) can be 
-                       matched with the following regular expression pattern: '^[0-9]\.[0-9]+-[0-9]+0[0-9]+'
+                       matched with the following regular expression pattern: '^[0-9]\.[0-9]+-[0-9]+0[0-9]+' .
                        However, there is no dependence on this assumption in the code used to process the data.
     - PARCEL_TYPE   -- The **parcel type**; e.g., Single family residence, etc.
     - LUC           -- (L)and (U)se (C)ode for this parcel.
     - OWN1          -- The **first owner** (Or name of business)
     - OWN2          -- The **second owner** or address of property.
     - ACCR          -- The **acreage** of the property.
-    - FULL_MKT_VAL  -- The **full market value** of the parcel -- land value + building value.
+    - LAND_VAL      -- The **assessed land value** of the parcel.
+    - FULL_MKT_VAL  -- The **full assessed value** of the parcel -- land value + building value.
 
 ### Create Tax Assessment Database
 Use the SQL Lite script, taxdb/create_taxrec, to create SQL Lite database taxrec.db with one table, taxrec
@@ -131,8 +75,7 @@ YEAR : INT, SWIS : INT, TOWN : TEXT, ADDR : TEXT
 
 ACCT : TEXT, PARCEL_ID : TEXT, PARCEL_TYPE : TEXT, LUC : INT
 
-OWN1 TEXT, OWN2 TEXT, ACCR FLOAT, FULL_MKT_VALUE INT
-
+OWN1 : TEXT, OWN2 : TEXT, ACCR : FLOAT, LAND_VAL : INT, FULL_MKT_VALUE : INT
 
 
 ### Tax Assessment Analysis
@@ -144,8 +87,12 @@ need to run bash within a given shell and set and export the environment variabl
 PYTHONPATH, appropriately, before launching "jupyter lab".
 For instance, export PYTHONPATH=<existing-python-path>:<path-to-tax_assessement_project>/src/utils:<path-to-vec_analysis>
 With this path one gets access to the tax_utils module and the vec_analysis module needed by tax_utils.
+You will also need to do: 
+- cd src/utils
+- python -m py_compile tax_anal.py
+- python -m py_compile tax_utils.py
 
-Currently, the vec_analysis is in a separate repo on this site.
+Currently, the vec_analysis python module is in a separate repo, vec_analysis, on the scottrsm github site.
 
 
 
