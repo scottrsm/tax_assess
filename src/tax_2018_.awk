@@ -42,7 +42,12 @@ BEGIN{RS="\\f"     ;
       split(lns[5], addrs, "   +"   ); # Get the address of the parcel "fields" on a line are separated by at least three spaces.
       printf("^%s", addrs[1]        ); # Print the address.
       split(lns[1], acct , "   +"   ); # Get the address of the parcel "fields" on a line are separated by at least three spaces.
-      printf("^%s", acct[4]         ); # Print the parcel account id.
+	  gsub(/ /, "", acct[4]         );
+	  if (acct[4] ~ /^[ \t]*$/) {
+	  	printf("^%s", "XXXXXXX"     );
+	  } else {
+      	printf("^%s", acct[4]       ); # Print the parcel account id.
+	  }
       split(lns[2], pid  , "   +"   ); # Get the address of the parcel "fields" on a line are separated by at least three spaces.
       printf("^%s", pid[1]          ); # Print the parcel ID.
       printf("^%s", pid[2]          ); # Print the parcel type.
@@ -53,9 +58,13 @@ BEGIN{RS="\\f"     ;
 	  split(lns[4], ln4  , "   +"   ); # Get the line 4 info.
       printf("^%s", ln4[1]          ); # Print Owner 2.
       split(ln4[2], accr , " "      ); # Get the acreage.
-      printf("^%s", accr[2]         ); # Print the parcel acreage.
+	  if (accr[2] ~ /^[0-9.]+$/) {
+      	printf("^%s", accr[2]       ); # Print the parcel acreage.
+  	  } else {
+      	printf("^%s", "0"           ); # Print the parcel acreage.
+      }
 	  split(ln3[3], lval , " "      ); # Extract the land (assessed) value...
-	  if (lval[1] ~ /[0-9,]+/) {
+	  if (lval[1] ~ /^[0-9,]+$/) {
 	  	gsub(/,/, "", lval[1]       );
 	  	printf("^%s", lval[1]       ); # Print the land value.
 	  } else {
@@ -63,15 +72,19 @@ BEGIN{RS="\\f"     ;
 	  }
       if (lns[8] ~ /FULL MKT VAL/) {
         split(lns[8], fmktv, "   +" ); # Get the address of the parcel "fields" on a line are separated by at least three spaces.
-        gsub(/,/, "", fmktv[3]      ); # Remove "," from the full market value. 
-        printf("^%s", fmktv[3]      ); # Print the Full Market Value.
+        gsub(/,/, "", fmktv[3]      ); # Remove "," from (potential) full market value. 
+		if (fmktv[3] ~ /^[0-9]+$/) {
+        	printf("^%s", fmktv[3]  ); # Print the Full Market Value.
+		} else {
+			printf("^%s", "-10000"   );
+		}
       } else {
         split(lns[9], fmktv, "   +" ); # Get the address of the parcel "fields" on a line are separated by at least three spaces.
-		if (fmktv[3] ~ /[0-9,]+/) {
-        	gsub(/,/, "", fmktv[3])  ; # Remove "," from the Full Assessment Value. 
-			printf("^%s", fmktv[3])  ; # Print the Full Assessment Value, if it exists.
+       	gsub(/,/, "", fmktv[3]      ); # Remove "," from (potential) Full Assessment Value. 
+		if (fmktv[3] ~ /^[0-9]+$/) {
+			printf("^%s", fmktv[3]  ); # Print the Full Assessment Value, if it exists.
 		} else {
-        	printf("^%s", "0")       ; # Print 0 for the Full Assessment Value.
+        	printf("^%s", "-20000"   ); # Print 0 for the Full Assessment Value.
 		}
       }
 

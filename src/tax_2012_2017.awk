@@ -1,4 +1,3 @@
-        toekn
 #### DESCRIPTION: This awk script first writes out a header line of the resulting pipe separated file.
 ####              It also sets up the record and field separators used to process the lower-hud (NY) tax data files
 ####              from 2012 to 2017, inclusive. It appears the tax data for these years is a pdf report that -- after text scraping --
@@ -47,13 +46,17 @@ BEGIN{RS="\\f"        ;
           ln=length(addrs);
           printf("^%s", addrs[ln-2]     ); # Print the address.
           split(addrs[ln-1], acct, ": " );
-          gsub(/[ \t]+/, "", acct[2]    );
-          printf("^%s", acct[2]         ); # Print the account ID.
-          split(lns[2], parcel, "   +"  ); # The third line has the parcel info. 
+	  	  gsub(/[ \t]+/, "", acct[2]    );
+	  	  if (acct[2] ~ /^ *$/) {
+	  	  	printf("^%s", "XXXXXXX"     );
+	      } else {
+      	    printf("^%s", acct[2]       ); # Print the parcel account id.
+	      }
+          split(lns[2], parcel, "   +"  ); # The second line has the parcel info. 
           split(parcel[2], pid, "  "    ); # Get the parcel ID.
           printf("^%s", pid[1]          ); # Print the parcel ID.
           printf("^%s", parcel[3]       ); # Get and print the parcel type.  
-          split(parcel[3], LUC, " "     ); # Within in a "field" data is separated by two spaces.
+          split(parcel[3], LUC, " "     ); # Within a "field", data is separated by two spaces.
           printf("^%s", LUC[1]          );
           split(lns[3], info3, "   +"   ); # Get line 3 info.
           printf("^%s", info3[2]        ); # Print out the first owner.
@@ -62,19 +65,32 @@ BEGIN{RS="\\f"        ;
           printf("^%s", ow2[1]          ); # Print out the second owner (could also be an address if no second owner).
           if (own2[3] ~ /ACREAGE/) {
             split(own2[3], acr, "  "    ); # Get the acreage info.
-            printf("^%s", acr[2]        ); # Print the acreage size.
+			if (acr[2] ~ /^[0-9.]+$/) {
+				printf("^%s", acr[2]);
+			} else {
+      		  printf("^%s", "0"         ); # Print the parcel acreage.
+		    }
           } else {
             split(lns[5], l6info, "   +"); # Get the sixth line as it may contain the acreage info.
             if (l6info[3] ~ /ACREAGE/) {
               split(l6info[3], acr, "  "); 
-              printf("^%s", acr[2]      );
-            } else {
-              printf("^"                );
-            }
+			  if (acr[2] ~ /^[0-9.]+$/) {
+				printf("^%s", acr[2]);
+			  } else {
+      		    printf("^%s", "0"       ); # Print the parcel acreage.
+		      }
+		    } else {
+      		    printf("^%s", "BADRECORD"); # Print the parcel acreage.
+		    }
           } 
 	      split(info3[4], lval, " "     ); # Extract the land assessed value...
 	      gsub(/,/, "", lval[1]         );
-	      printf("^%s", lval[1]         ); # Print the land assessed value.
+		  if (lval[1] ~ /^[0-9,]+$/) {
+			  gsub(/,/, "", lval[1]);
+			  printf("^%s", lval[1]);
+		  } else {
+	      	printf("^%s", "0"        ); # Print the land assessed value.
+		  }
           ## Now get the Full market value of the parcel.
           ## This can be in any one of the lines 5, 6, 7, or 8.
           mkt_pat = "FULL MKT VAL  ([0-9,]+)";
@@ -85,11 +101,13 @@ BEGIN{RS="\\f"        ;
           } else {
              match(lns[8], mkt_pat, m    ); 
           }
-          gsub(/,/, "", m[1]             );
-          printf("^%s", m[1]             ); # Print the total assessed value of the parcel.
-
+		  gsub(/,/, "", m[1]);
+		  if (m[1] ~ /^[0-9]+$/) {
+			  printf("^%s", m[1]);
+		  } else {
+		  	printf("^%s", "-10000");
+	      }
           printf("\n"                    ); # Close out this record.
-
         } 
   }
 
