@@ -19,14 +19,14 @@ BEGIN{RS="\\f"     ;
       ## ACCT          -- The Account number for this parcel.
       ## PARCEL_ID     -- The parcel ID. It is believed that has a form that matches the regular expression pattern: '^[0-9]\.[0-9]+-[0-9]+0[0-9]+'
       ##                  However, there is no dependence on this assumption in the code below.
-      ## PARCEL_TYPE   -- The parcel type; e.g., Single family residence, etc.
       ## LUC           -- (L)and (U)se (C)ode for this parcel.
+	  ## PARCEL_TYPE   -- The type of parcel for the LUC.
       ## OWN1          -- The first owner (Or name of business)
       ## OWN2          -- The second owner or address of property.
       ## ACCR          -- The acreage of the property.
 	  ## LAND_VAL      -- The assessed value of the land of the parcel.
       ## FULL_MKT_VAL  -- The full assessed value of the parcel -- land value + building value.
-      printf("%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s\n", "YEAR", "SWIS", "TOWN", "ADDR", "ACCT", "PARCEL_ID", "PARCEL_TYPE", "LUC", "OWN1", "OWN2", "ACCR", "LAND_VAL", "FULL_MKT_VAL")}; 
+      printf("%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s\n", "YEAR", "SWIS", "TOWN", "ADDR", "ACCT", "PARCEL_ID", "LUC", "PARCEL_TYPE", "OWN1", "OWN2", "ACCR", "LAND_VAL", "FULL_MKT_VAL")}; 
  {
     ## The first field of the record is the header for all of the tax records on the "page".
     split($1, lns, "\n"       ); # Split first parcel block into lines.
@@ -40,7 +40,11 @@ BEGIN{RS="\\f"     ;
       printf("%s^%s^%s", year, tn[2], tn[3]); # Print the year, SWIS and town information.
       split($i    , lns  , "\n"     ); # Split the parcel (block of lines between the ****<PARCEL-ID>******) info into lines. 
       split(lns[5], addrs, "   +"   ); # Get the address of the parcel "fields" on a line are separated by at least three spaces.
-      printf("^%s", addrs[1]        ); # Print the address.
+	  if (length(addrs[1]) == 0) {
+		  printf("^s", "BAD_RECORD");
+	  } else {
+          printf("^%s", addrs[1]    ); # Print the address.
+	  }
       split(lns[1], acct , "   +"   ); # Get the address of the parcel "fields" on a line are separated by at least three spaces.
 	  gsub(/ /, "", acct[4]         );
 	  if (acct[4] ~ /^[ \t]*$/) {
@@ -50,13 +54,13 @@ BEGIN{RS="\\f"     ;
 	  }
       split(lns[2], pid  , "   +"   ); # Get the address of the parcel "fields" on a line are separated by at least three spaces.
       printf("^%s", pid[1]          ); # Print the parcel ID.
-      printf("^%s", pid[2]          ); # Print the parcel type.
       split(pid[2], luc  , " "      ); # Extract LUC. 
 	  if (luc[1] ~ /^[0-9]+$/) {
        	printf("^%s", luc[1]        ); # If good, Print the LUC (land usage code) for this parcel type.
 	  } else {
        	printf("^%s", "0"           ); # Else Print the LUC (land usage code) bad value.
 	  }
+      printf("^%s", pid[2]          ); # Print the parcel type.
       split(lns[3], ln3  , "   +"   ); # Get the line 3 info.
       printf("^%s", ln3[1]          ); # Print Owner 1.
 	  split(lns[4], ln4  , "   +"   ); # Get the line 4 info.

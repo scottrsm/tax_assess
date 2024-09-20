@@ -95,4 +95,4 @@ You will also need to do:
 Currently, the vec_analysis python module is in a separate repo, vec_analysis, on the scottrsm github site.
 
 
-Version: 1.4
+Version: 1.5
