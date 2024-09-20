@@ -33,9 +33,10 @@ cd ../indata  || exit 1
 ## NOTE: In some cases we can't determine some of the fields we provide the following
 ## defaults:
 ##  1). acreage to: "0".
-##  2). account number to: "XXXXXX".
-##  3). Land Val to: "0".
-##  4). FULL MKT VAL to: "-10000".
+##  2). LUC to: "0".
+##  3). account number to: "XXXXXX".
+##  4). Land Val to: "0".
+##  5). FULL MKT VAL to: "-10000".
 for file in 201[234567]*.txt; do
   outfile=${file/%.txt/.psv}
   year=${outfile:0:4}
@@ -47,9 +48,10 @@ done
 ## In some cases we can't determine some of the fields we provide the following
 ## defaults:
 ## 1). Acreage: "0".
-## 2). account number to: "XXXXXX".
-## 3). Land VAL: "0".
-## 4). FULL MKT VAL: "-10000" or "-20000" (if not found on the later lines)
+## 2). LUC to: "0".
+## 3). account number to: "XXXXXX".
+## 4). Land VAL: "0".
+## 5). FULL MKT VAL: "-10000" or "-20000" (if not found on the later lines)
 
 
 ## Process .txt files to psv files in Date Range: 2018-2019.
@@ -67,7 +69,6 @@ for file in 202[0-9]*.txt; do
   echo "Processing file \"$file\"" 1>&2
   $AWK -v year="$year" -f ${TAX_NEW_AWK} "$file" > "../outdata/$outfile"
 done
-
 
 exit 0
 

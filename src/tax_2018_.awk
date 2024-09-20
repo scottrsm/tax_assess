@@ -52,7 +52,11 @@ BEGIN{RS="\\f"     ;
       printf("^%s", pid[1]          ); # Print the parcel ID.
       printf("^%s", pid[2]          ); # Print the parcel type.
       split(pid[2], luc  , " "      ); # Extract LUC. 
-      printf("^%s", luc[1]          ); # Print the parcel LUC.
+	  if (luc[1] ~ /^[0-9]+$/) {
+       	printf("^%s", luc[1]        ); # If good, Print the LUC (land usage code) for this parcel type.
+	  } else {
+       	printf("^%s", "0"           ); # Else Print the LUC (land usage code) bad value.
+	  }
       split(lns[3], ln3  , "   +"   ); # Get the line 3 info.
       printf("^%s", ln3[1]          ); # Print Owner 1.
 	  split(lns[4], ln4  , "   +"   ); # Get the line 4 info.
